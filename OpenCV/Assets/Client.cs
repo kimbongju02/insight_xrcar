@@ -11,6 +11,7 @@ using System.Buffers.Text;
 using System.IO;
 using System.Security.Cryptography;
 using static System.Net.Mime.MediaTypeNames;
+using System.Threading.Tasks;
 
 public class Client : MonoBehaviour
 {
@@ -25,8 +26,16 @@ public class Client : MonoBehaviour
     [SerializeField] RawImage rawImage;
     [SerializeField] Texture2D bmp;
 
+    [SerializeField]
     byte[] messageData;
-    [SerializeField] byte[] test;
+    // ={
+    //    0x63,0x6E,0x75,0x6D,0x70,0x79,0x2E,0x63,0x6F,0x72,0x65,0x2E,0x6D,0x75,0x6C,0x74,
+    //    0x69,0x61,0x72,0x72,0x61,0x79,0x0A,0x5F,0x72,0x65,0x63,0x6F,0x6E,0x73,0x74,0x72,
+    //    0x75,0x63,0x74,0x0A,0x70,0x30,0x0A,0x28,0x63,0x6E,
+    //};
+    [SerializeField]
+    byte[] resultData;
+    int index = 0;
 
     private void Awake()
     {
@@ -41,7 +50,10 @@ public class Client : MonoBehaviour
 
     private void Update()
     {
-        ReceiveData(); 
+        if (index >= 1)
+            return;
+        ReceiveData();
+        index++;
     }
 
     private void ReceiveData()
@@ -78,7 +90,10 @@ public class Client : MonoBehaviour
             //Console.WriteLine("Receive messageData Size : " + messageData.Length);
             Debug.Log("totalBytesReceived : " + messageData.Length);
 
-            ConvertTexture2D(messageData);
+            //ConvertTexture2D(messageData);
+            string path = "C:/Users/msi/Desktop/abc.txt";
+            File.WriteAllBytes(path, messageData);
+            resultData = File.ReadAllBytes(path);
         }
         catch (SocketException ex)
         {
@@ -88,53 +103,49 @@ public class Client : MonoBehaviour
         }
     }
 
+    //void ConvertTexture2D(byte[] imageData)
+    //{
+    //    try
+    //    {
+    //        Mat src = Cv2.ImDecode(imageData, ImreadModes.Color);
+    //        //int size = src.Cols * src.Rows * src.ElemSize();
+    //        //resultData = new byte[size];
+
+    //        // Mat 데이터를 byte array로 복사
+    //        //Marshal.Copy(src.Data, resultData, 0, size);
+    //        bool isEncode = Cv2.ImEncode(".png", src, out resultData);
+
+    //        bmp = new Texture2D(720, 480, TextureFormat.RGBA64, false);
+
+    //        //bmp.hideFlags = HideFlags.HideAndDontSave;
+    //        //bmp.filterMode = FilterMode.Point;
+    //        bmp.LoadRawTextureData(resultData);
+
+    //        //Vector2 pivot = new Vector2(0.5f, 0.5f);
+    //        //UnityEngine.Rect tRect = new UnityEngine.Rect(0, 0, bmp.width, bmp.height);
+    //        //Sprite newSprite = Sprite.Create(bmp, tRect, pivot);
+
+    //        //image.overrideSprite = newSprite;
+
+    //        bmp.Apply();
+    //        rawImage.texture = bmp;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.Log("변환 실패 " + ex);
+    //    }
+    //}
+
     void ConvertTexture2D(byte[] imageData)
     {
         try
         {
-            /*
-            Mat mat = DecodeImage(imageData);
-            Debug.Log(mat.Size());
-            Texture2D texture = MatToTexture(mat);
-            */
+            Texture2D tex = new Texture2D(720, 720, TextureFormat.ETC2_RGBA8, false);
 
-            /*
-            Texture2D bmp;
-            bmp = new Texture2D(720, 480);
-            IntPtr _buff = Marshal.AllocHGlobal(720 * 480 * 4);
-            bmp.LoadRawTextureData(imageData, _buff);
-            bmp.Apply();
+            tex.LoadRawTextureData(imageData);
+            tex.Apply();
 
-            rawImage.texture = bmp;
-            */
-            //stringData = Convert.ToBase64String(imageData);
-            //datas = Convert.FromBase64String(stringData);
-            test = new byte[]
-            {
-                0x30, 0x32, 0x32, 0x32, 0xe7, 0x30, 0xaa, 0x7f, 0x32, 0x32, 0x32, 0x32, 0xf9, 0x40, 0xbc, 0x7f,
-                0x03, 0x03, 0x03, 0x03, 0xf6, 0x30, 0x02, 0x05, 0x03, 0x03, 0x03, 0x03, 0xf4, 0x30, 0x03, 0x06,
-                0x32, 0x32, 0x32, 0x32, 0xf7, 0x40, 0xaa, 0x7f, 0x32, 0xf2, 0x02, 0xa8, 0xe7, 0x30, 0xff, 0xff,
-                0x03, 0x03, 0x03, 0xff, 0xe6, 0x40, 0x00, 0x0f, 0x00, 0xff, 0x00, 0xaa, 0xe9, 0x40, 0x9f, 0xff,
-                0x5b, 0x03, 0x03, 0x03, 0xca, 0x6a, 0x0f, 0x30, 0x03, 0x03, 0x03, 0xff, 0xca, 0x68, 0x0f, 0x30,
-                0xaa, 0x94, 0x90, 0x40, 0xba, 0x5b, 0xaf, 0x68, 0x40, 0x00, 0x00, 0xff, 0xca, 0x58, 0x0f, 0x20,
-                0x00, 0x00, 0x00, 0xff, 0xe6, 0x40, 0x01, 0x2c, 0x00, 0xff, 0x00, 0xaa, 0xdb, 0x41, 0xff, 0xff,
-                0x00, 0x00, 0x00, 0xff, 0xe8, 0x40, 0x01, 0x1c, 0x00, 0xff, 0x00, 0xaa, 0xbb, 0x40, 0xff, 0xff,
-            };
-
-            bmp = new Texture2D(720, 480, TextureFormat.RGBA64, false);
-
-            bmp.hideFlags = HideFlags.HideAndDontSave;
-            bmp.filterMode = FilterMode.Point;
-            bmp.LoadImage(test);
-
-            //Vector2 pivot = new Vector2(0.5f, 0.5f);
-            //UnityEngine.Rect tRect = new UnityEngine.Rect(0, 0, bmp.width, bmp.height);
-            //Sprite newSprite = Sprite.Create(bmp, tRect, pivot);
-
-            //image.overrideSprite = newSprite;
-
-            bmp.Apply();
-            rawImage.texture = bmp;
+            rawImage.texture = tex;
         }
         catch (Exception ex)
         {

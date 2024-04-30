@@ -28,6 +28,14 @@ public class Client : MonoBehaviour
 
     [SerializeField]
     byte[] messageData;
+<<<<<<< HEAD
+=======
+    // ={
+    //    0x63,0x6E,0x75,0x6D,0x70,0x79,0x2E,0x63,0x6F,0x72,0x65,0x2E,0x6D,0x75,0x6C,0x74,
+    //    0x69,0x61,0x72,0x72,0x61,0x79,0x0A,0x5F,0x72,0x65,0x63,0x6F,0x6E,0x73,0x74,0x72,
+    //    0x75,0x63,0x74,0x0A,0x70,0x30,0x0A,0x28,0x63,0x6E,
+    //};
+>>>>>>> bc171992442912052da6bb3457c41be5d6138d16
     [SerializeField]
     byte[] resultData;
     int index = 0;
@@ -86,8 +94,13 @@ public class Client : MonoBehaviour
             Debug.Log("totalBytesReceived : " + messageData.Length);
 
             //ConvertTexture2D(messageData);
+<<<<<<< HEAD
             string path = "C:/Users/user/Desktop/abc.txt";
             //File.WriteAllBytes(path, messageData);
+=======
+            string path = "C:/Users/msi/Desktop/abc.txt";
+            File.WriteAllBytes(path, messageData);
+>>>>>>> bc171992442912052da6bb3457c41be5d6138d16
             resultData = File.ReadAllBytes(path);
         }
         catch (SocketException ex)
